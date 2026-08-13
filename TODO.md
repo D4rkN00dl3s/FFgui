@@ -41,12 +41,10 @@ FFgui is a working but spare .NET 10/Avalonia frontend for FFmpeg. Near-term foc
   - Dependencies: none
   - Success criteria: builds clean; all references resolve unchanged.
 
-- [ ] Add CI workflow (restore → build → test)
+- [x] Add CI workflow (restore → build → test)
   - Area: .github/workflows/
   - Type: infra
-  - Rationale: no CI; prevents broken builds reaching humans.
-  - Dependencies: test project exists (do After)
-  - Success criteria: workflow runs on push/PR and is green on a clean tree.
+  - Status: file created (`.github/workflows/ci.yml`); runs on push/PR to `main`. **Unverified on GitHub** — not yet committed/pushed by me (git owner's call); locally `dotnet restore && dotnet build && dotnet test` is 0 warnings/0 errors + 9 passed.
 
 ## Later
 

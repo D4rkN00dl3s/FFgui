@@ -22,6 +22,7 @@ FFgui is a C#/.NET 10 desktop GUI frontend for FFmpeg. Users add video files to 
 
 ## Directory structure
 - `Assets/` — app icon (`avalonia-logo.ico`), bundled as `AvaloniaResource`
+- `.github/workflows/` — GitHub Actions CI: restore → build → test on push/PR to `main`
 - `Models/` — domain models: `ConversionJob` (input/output path generation, collision-safe suffixing), `ConversionStatus` (flat status enum), `StatusToBrushConverter` (IValueConverter for status→color)
 - `Services/` — `FFmpegService`/`IFFmpegService` (spawns ffmpeg/ffprobe, parses `-progress pipe:1` for progress), `FFmpegConversionException` (in its own file), `FilePickerService`/`IFilePickerService` (Avalonia `StorageProvider` file picker, video filter)
 - `ViewModels/` — `MainViewModel`, `ConversionJobViewModel` (per-job wrapper); both inherit `ObservableObject` directly (`ViewModelBase` was removed)
@@ -46,4 +47,10 @@ FFgui is a C#/.NET 10 desktop GUI frontend for FFmpeg. Users add video files to 
 - `StartConversion` runs jobs sequentially; a single `CancellationToken` cancels the whole queue (the Cancel button binds `StartConversionCommand.Cancel`).
 - `MainWindow.axaml.cs` references `QueueDropZone` (set via `x:Name`) — keep this name if restructuring the drop zone.
 - `app.manifest` is Windows-only (WinExe + Windows compatibility block); app is built for desktop (`UsePlatformDetect`) — cross-platform (Linux/Mac) build will work but `app.manifest` is ignored outside Windows.
-- `.gitignore` now ignores `bin/`, `obj/`, and `.idea/`; add a VCS remote when ready to share.
+- `.gitignore` ignores `bin/`, `obj/`, and `.idea/`. Repo is git-tracked on `origin → https://github.com/D4rkN00dl3s/FFgui.git`; local commits exist that are not pushed — pushing is the human's responsibility (see Git workflow section below).
+
+## Git workflow
+
+- Agent may run local git commands freely: `git add`, `git commit`, `git branch`, `git checkout -b`, `git status`, `git diff`, `git log`.
+- Agent must NEVER run `git push` in any form, nor `git branch -D`, `git reset --hard`, or `rm -rf`. Pushing to GitHub is done by the human only.
+- After committing locally, the summary ends with a note that changes are committed but not pushed, so the human remembers to push.
