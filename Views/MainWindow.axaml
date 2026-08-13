@@ -31,10 +31,38 @@
     </Window.Styles>
 
     <Grid Margin="20, 12, 20,12"
-          RowDefinitions="Auto,Auto,*,Auto">
+          RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <!-- ffmpeg/ffprobe availability banner (non-blocking, dismissible) -->
+        <Border Grid.Row="0"
+                Margin="0,0,0,16"
+                Padding="14,12"
+                CornerRadius="8"
+                BorderThickness="1"
+                BorderBrush="#FF9F6F"
+                Background="#33FFA500"
+                IsVisible="{Binding IsToolWarningVisible}">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding ToolWarningMessage}"
+                           Foreground="White"
+                           TextWrapping="Wrap" />
+
+                <Button Grid.Column="1"
+                        Content="×"
+                        Command="{Binding DismissToolWarningCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="White"
+                        FontSize="18"
+                        HorizontalAlignment="Right"
+                        ToolTip="Dismiss warning" />
+            </Grid>
+        </Border>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0"
+        <StackPanel Grid.Row="1"
                     Margin="0,0,0,24"
                     Spacing="6">
 
@@ -49,7 +77,7 @@
         </StackPanel>
 
         <!-- Queue title -->
-        <Grid Grid.Row="1"
+        <Grid Grid.Row="2"
               Margin="0,0,0,6"
               ColumnDefinitions="*,Auto">
 
@@ -82,7 +110,7 @@
 
        <!-- Queue -->
         <Border x:Name="QueueDropZone"
-                Grid.Row="2"
+                Grid.Row="3"
                 Classes="dropzone"
                 Padding="16"
                 CornerRadius="12"
@@ -193,7 +221,7 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="3"
+        <Grid Grid.Row="4"
               Margin="0,16,0,0"
               ColumnDefinitions="*,Auto">
             <!-- Left actions -->

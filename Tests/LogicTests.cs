@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO;
 using Avalonia.Media;
 using FFgui.Models;
+using FFgui.Services;
 using Xunit;
 
 namespace FFgui.Tests;
@@ -64,5 +65,38 @@ public class LogicTests
     {
         var brush = Assert.IsAssignableFrom<ISolidColorBrush>(_converter.Convert(status, null!, null, CultureInfo.InvariantCulture));
         Assert.Equal(Color.FromUInt32(argb), brush.Color);
+    }
+}
+
+public class ToolWarningMessageTests
+{
+    [Fact]
+    public void GetToolWarningMessage_returns_null_when_no_tools_missing()
+    {
+        Assert.Null(FFmpegService.GetToolWarningMessage(Array.Empty<string>()));
+        Assert.Null(FFmpegService.GetToolWarningMessage(new string[] { }));
+    }
+
+    [Fact]
+    public void GetToolWarningMessage_names_ffmpeg_when_only_ffmpeg_missing()
+    {
+        var msg = FFmpegService.GetToolWarningMessage(new[] { "ffmpeg" })!;
+        Assert.Contains("ffmpeg not found on PATH", msg);
+        Assert.DoesNotContain("ffprobe", msg);
+    }
+
+    [Fact]
+    public void GetToolWarningMessage_names_ffprobe_when_only_ffprobe_missing()
+    {
+        var msg = FFmpegService.GetToolWarningMessage(new[] { "ffprobe" })!;
+        Assert.Contains("ffprobe not found on PATH", msg);
+        Assert.DoesNotContain("ffmpeg not found", msg);
+    }
+
+    [Fact]
+    public void GetToolWarningMessage_names_both_when_missing()
+    {
+        var msg = FFmpegService.GetToolWarningMessage(new[] { "ffmpeg", "ffprobe" })!;
+        Assert.Contains("ffmpeg and ffprobe not found on PATH", msg);
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FFgui.Models;
@@ -13,6 +14,12 @@ namespace FFgui.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+    [ObservableProperty]
+    private string? toolWarningMessage;
+
+    [ObservableProperty]
+    private bool isToolWarningVisible;
+
     public ObservableCollection<ConversionJobViewModel> SelectedJobs { get; } = [];
 
     private readonly IFilePickerService _filePickerService;
@@ -23,7 +30,42 @@ public partial class MainViewModel : ObservableObject
         _filePickerService = filePickerService;
         _ffmpegService = ffmpegService;
         SelectedJobs.CollectionChanged += (_, _) => RemoveJobCommand.NotifyCanExecuteChanged();
+
+        ProbeToolAvailability();
     }
+
+    /// <summary>
+    /// Non-blocking startup probe for ffmpeg/ffprobe on PATH. Updates the banner
+    /// properties (which the XAML binds) without freezing the UI. Runs once at startup.
+    /// </summary>
+    private void ProbeToolAvailability()
+    {
+        _ = Task.Run(() =>
+        {
+            try
+            {
+                var missing = new List<string>();
+                if (!_ffmpegService.IsToolAvailable("ffmpeg")) missing.Add("ffmpeg");
+                if (!_ffmpegService.IsToolAvailable("ffprobe")) missing.Add("ffprobe");
+
+                var message = FFmpegService.GetToolWarningMessage(missing);
+                if (message is null) return;
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    ToolWarningMessage = message;
+                    IsToolWarningVisible = true;
+                });
+            }
+            catch
+            {
+                // a failed diagnosis must never block startup
+            }
+        });
+    }
+
+    [RelayCommand]
+    private void DismissToolWarning() => IsToolWarningVisible = false;
     
     public ObservableCollection<ConversionJobViewModel> Jobs { get; } = [];
 

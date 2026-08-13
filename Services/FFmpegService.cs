@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -94,5 +95,32 @@ public class FFmpegService : IFFmpegService
         {
             throw new FFmpegConversionException($"{process.StartInfo.FileName} not found on PATH. Install FFmpeg and add it to your PATH, then restart FFgui.");
         }
+    }
+
+    public bool IsToolAvailable(string tool)
+    {
+        using var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = tool,
+                Arguments = "--version",
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
+        };
+
+        try { StartProcess(process); }
+        catch (FFmpegConversionException) { return false; }
+
+        process.WaitForExit();
+        return process.ExitCode == 0;
+    }
+
+    public static string? GetToolWarningMessage(IEnumerable<string> missing)
+    {
+        if (missing == null) return null;
+        var joined = string.Join(" and ", missing);
+        return string.IsNullOrEmpty(joined) ? null : $"{joined} not found on PATH. Install FFmpeg (https://ffmpeg.org) and add it to your PATH, then restart FFgui to enable conversion.";
     }
 }

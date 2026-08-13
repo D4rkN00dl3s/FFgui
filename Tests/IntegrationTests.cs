@@ -9,13 +9,10 @@ using Xunit;
 namespace FFgui.Tests;
 
 /// <summary>
-/// Exercises the real error-surfacing path end-to-end:
-/// MainViewModel.StartConversion -> FFmpegService.ConvertAsync -> GetDurationAsync(ffprobe)
-/// -> TryParse failure -> FFmpegConversionException -> caught -> job.Error + ErrorMessage.
-/// The UI's per-job error Expander binds to ErrorMessage, so asserting it here covers the
-/// data the Expander renders. Skip-safe: when ffmpeg/ffprobe are absent, StartProcess
-/// surfaces a "not found" error (still Error + non-empty message); when present, the
-/// parse-failure branch is additionally asserted.
+/// Exercises real process-spawn paths end-to-end.
+/// Both tests are environment-agnostic: a missing tool yields a per-job
+/// FFmpegConversionException (still Error + non-empty message), so the suite
+/// is green whether or not ffmpeg/ffprobe are installed.
 /// </summary>
 public class ErrorSurfacingTests
 {
@@ -38,5 +35,12 @@ public class ErrorSurfacingTests
         // only assert the parse-failure branch when ffprobe actually ran
         if (!job.ErrorMessage!.Contains("not found on PATH", StringComparison.OrdinalIgnoreCase))
             Assert.Contains("duration", job.ErrorMessage, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void IsToolAvailable_returns_false_for_missing_tool()
+    {
+        var service = new FFmpegService();
+        Assert.False(service.IsToolAvailable("ffmpeg-does-not-exist-xyz"));
     }
 }

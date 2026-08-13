@@ -48,12 +48,12 @@ FFgui is a working but spare .NET 10/Avalonia frontend for FFmpeg. Near-term foc
 
 ## Later
 
-- [ ] Surface ffmpeg/ffprobe-missing as a startup banner (not only per-job at first Start)
-  - Area: App.axaml.cs / Services
+- [x] Surface ffmpeg/ffprobe-missing as a non-blocking, dismissible startup banner
+  - Area: ViewModels/MainViewModel + Views/MainWindow + Services/FFmpegService
   - Type: feature
-  - Rationale: current first-use error is good, but a startup probe gives clearer upfront feedback when the toolchain is absent.
-  - Dependencies: none beyond existing FFmpegService
-  - Success criteria: app shows a clear "ffmpeg not found" message before any job runs. `needs clarification` — prefer startup banner vs. per-job only?
+  - Rationale: upfront warning when the toolchain is absent at startup; the per-job Expander remains the conversion-time fallback.
+  - Dependencies: none
+  - Success criteria: banner names the missing tool(s) at startup; dismissible without re-probe; no banner when both tools present. Implemented as a non-blocking startup banner per the accepted design decision.
 
 - [ ] Decide on Windows-only `app.manifest`
   - Area: app.manifest / FFgui.csproj
