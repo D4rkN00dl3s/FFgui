@@ -57,7 +57,7 @@
                         Foreground="White"
                         FontSize="18"
                         HorizontalAlignment="Right"
-                        ToolTip="Dismiss warning" />
+                        ToolTip.Tip="Dismiss warning" />
             </Grid>
         </Border>
 
