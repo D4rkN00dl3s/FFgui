@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -104,17 +105,29 @@ public class FFmpegService : IFFmpegService
             StartInfo = new ProcessStartInfo
             {
                 FileName = tool,
-                Arguments = "--version",
+                Arguments = "-version",
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                RedirectStandardError = true,
             }
         };
 
+        var exit = -1;
+        var err = "";
         try { StartProcess(process); }
-        catch (FFmpegConversionException) { return false; }
+        catch (FFmpegConversionException) { exit = -100; err = "Win32: tool not found"; }
 
-        process.WaitForExit();
-        return process.ExitCode == 0;
+        if (exit != -100)
+        {
+            process.WaitForExit();
+            exit = process.ExitCode;
+            try { err = process.StandardError.ReadToEnd(); } catch { }
+        }
+
+        File.AppendAllText(Path.Combine(Path.GetTempPath(), "ffgui_probe.log"),
+            $"[{DateTime.UtcNow:HH:mm:ss}] {tool} --version => exit={exit} stderr={err.Length}B :: {(string.IsNullOrEmpty(err) ? "(none)" : err.Substring(0, Math.Min(160, err.Length)))}\n");
+
+        return exit == 0;
     }
 
     public static string? GetToolWarningMessage(IEnumerable<string> missing)

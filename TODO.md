@@ -18,6 +18,13 @@ FFgui is a working but spare .NET 10/Avalonia frontend for FFmpeg. Near-term foc
   - Dependencies: none (pure-model tests need no DI)
   - Success criteria: `dotnet test` runs and passes; a deliberate regression in collision-suffixing is caught.
 
+- [x] Fix startup banner appearing when ffmpeg/ffprobe ARE present
+  - Area: Services/FFmpegService, Tests/IntegrationTests.cs
+  - Type: bugfix
+  - Rationale: `IsToolAvailable` probed tools with `--version`, which ffmpeg/ffprobe reject (exit 8/1), so `exit != 0` was treated as "missing" even with a working toolchain — banner fired despite the "no banner when both tools present" success criterion in the banner ticket below.
+  - Dependencies: ffmpeg/ffprobe on PATH (available on this machine)
+  - Success criteria: `ffmpeg -version`/`ffprobe -version` exit 0; regression tests assert `IsToolAvailable` returns `true` for the real tools (skipped when absent) and `false` for a bogus name; `dotnet build`/`dotnet test` clean. Changed probe flag from `--version` to `-version`.
+
 - [x] Verify error-surfacing path end-to-end with a corrupt/non-video input
   - Area: Views/MainWindow + ViewModels/MainViewModel (UI)
   - Type: bugfix/verify
@@ -44,7 +51,7 @@ FFgui is a working but spare .NET 10/Avalonia frontend for FFmpeg. Near-term foc
 - [x] Add CI workflow (restore → build → test)
   - Area: .github/workflows/
   - Type: infra
-  - Status: file created (`.github/workflows/ci.yml`); runs on push/PR to `main`. **Unverified on GitHub** — not yet committed/pushed by me (git owner's call); locally `dotnet restore && dotnet build && dotnet test` is 0 warnings/0 errors + 9 passed.
+  - Status: file created (`.github/workflows/ci.yml`); runs on push/PR to `main`. **Unverified on GitHub** — not yet committed/pushed by me (git owner's call); locally `dotnet restore && dotnet build && dotnet test` is 0 warnings/0 errors + 16 passed.
 
 ## Later
 

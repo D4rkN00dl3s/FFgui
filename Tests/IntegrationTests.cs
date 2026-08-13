@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using FFgui.Models;
 using FFgui.Services;
@@ -42,5 +44,36 @@ public class ErrorSurfacingTests
     {
         var service = new FFmpegService();
         Assert.False(service.IsToolAvailable("ffmpeg-does-not-exist-xyz"));
+    }
+
+    /// <summary>
+    /// Confirms ffmpeg/ffprobe are on PATH independently of <see cref="FFmpegService.IsToolAvailable"/>
+    /// (i.e. without relying on the version flag the SUT uses), so the suite skips
+    /// cleanly on machines without ffmpeg while still catching a wrong-probe-flag
+    /// regression when the tools are present.
+    /// </summary>
+    private static bool ToolOnPath(string name)
+    {
+        var file = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"{name}.exe" : name;
+        var path = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
+        return path.Split(Path.PathSeparator).Any(p => File.Exists(Path.Combine(p.Trim(), file)));
+    }
+
+    // Regression: was using `--version`, which ffmpeg/ffprobe reject (exit 8/1),
+    // so the startup banner appeared even when both tools were installed.
+    [Fact]
+    public void IsToolAvailable_returns_true_when_ffmpeg_present()
+    {
+        if (!ToolOnPath("ffmpeg")) return;
+        var service = new FFmpegService();
+        Assert.True(service.IsToolAvailable("ffmpeg"));
+    }
+
+    [Fact]
+    public void IsToolAvailable_returns_true_when_ffprobe_present()
+    {
+        if (!ToolOnPath("ffprobe")) return;
+        var service = new FFmpegService();
+        Assert.True(service.IsToolAvailable("ffprobe"));
     }
 }

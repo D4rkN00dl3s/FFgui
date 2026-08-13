@@ -18,7 +18,7 @@ FFgui is a C#/.NET 10 desktop GUI frontend for FFmpeg. Users add video files to 
 - Build (debug): `dotnet build`
 - Build (release): `dotnet build -c Release`
 - Run: `dotnet run`
-- Tests: `dotnet test` (xUnit; project `Tests/FFgui.Tests.csproj`, references `FFgui.csproj`; 9 tests — `ConversionJob` collision-suffixing + `StatusToBrushConverter` mapping + an end-to-end error-surfacing integration test through `MainViewModel.StartConversion` against real ffprobe)
+- Tests: `dotnet test` (xUnit; project `Tests/FFgui.Tests.csproj`, references `FFgui.csproj`; 16 tests — `ConversionJob` collision-suffixing + `StatusToBrushConverter` mapping + an end-to-end error-surfacing integration test through `MainViewModel.StartConversion` against real ffprobe + `FFmpegService.IsToolAvailable` regression probes that assert `true` when ffmpeg/ffprobe are present on PATH and `false` for a bogus tool name)
 
 ## Directory structure
 - `Assets/` — app icon (`avalonia-logo.ico`), bundled as `AvaloniaResource`
