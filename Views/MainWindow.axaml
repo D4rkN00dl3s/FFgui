@@ -1,0 +1,234 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:FFgui.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:FFgui.Models"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        Width="1280"
+        Height="720"
+        MinWidth="600"
+        MinHeight="400"
+        x:Class="FFgui.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="FFgui">
+    
+    <Window.Resources>
+        <models:StatusToBrushConverter x:Key="StatusToBrushConverter" />
+    </Window.Resources>
+    
+    <Window.Styles>
+        <Style Selector="Border.dropzone">
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
+        </Style>
+
+        <Style Selector="Border.dropzone.dragover">
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+            <Setter Property="Background" Value="#2A007ACC" />
+        </Style>
+    </Window.Styles>
+
+    <Grid Margin="20, 12, 20,12"
+          RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0"
+                    Margin="0,0,0,24"
+                    Spacing="6">
+
+            <TextBlock Text="FFgui"
+                       FontSize="32"
+                       FontWeight="Bold" />
+
+            <TextBlock Text="A simple desktop frontend for FFmpeg"
+                       Opacity="0.65"
+                       FontSize="14" />
+
+        </StackPanel>
+
+        <!-- Queue title -->
+        <Grid Grid.Row="1"
+              Margin="0,0,0,6"
+              ColumnDefinitions="*,Auto">
+
+            <StackPanel Spacing="2">
+
+                <TextBlock Text="Conversion Queue"
+                           FontSize="18"
+                           FontWeight="SemiBold" />
+
+                <TextBlock Text="Add videos to begin converting."
+                           FontSize="12"
+                           Opacity="0.6" />
+
+            </StackPanel>
+
+            <!-- File count badge -->
+            <Border Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Padding="12,5"
+                    CornerRadius="16"
+                    Background="{DynamicResource SystemAccentColor}">
+
+                <TextBlock Text="{Binding Jobs.Count, StringFormat='{}{0} files'}"
+                           FontWeight="SemiBold"
+                           Foreground="White" />
+
+            </Border>
+
+        </Grid>
+
+       <!-- Queue -->
+        <Border x:Name="QueueDropZone"
+                Grid.Row="2"
+                Classes="dropzone"
+                Padding="16"
+                CornerRadius="12"
+                BorderThickness="5"
+                DragDrop.AllowDrop="True"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+
+            <Grid>
+
+                <!-- Empty state -->
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="10"
+                            IsVisible="{Binding HasNoJobs}">
+
+                    <TextBlock Text=""
+                               FontSize="56"
+                               HorizontalAlignment="Center"/>
+
+                    <TextBlock Text="No files in the queue"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"/>
+
+                    <TextBlock Text="Click 'Add File' below to begin."
+                               Opacity="0.65"
+                               HorizontalAlignment="Center"/>
+
+                </StackPanel>
+
+                <!-- Queue -->
+                <ListBox ItemsSource="{Binding Jobs}"
+                         SelectionMode="Multiple"
+                         SelectedItems="{Binding SelectedJobs}"
+                         IsVisible="{Binding !HasNoJobs}"
+                         BorderThickness="0"
+                         Background="Transparent">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,0,0,10"
+                                    Padding="14"
+                                    CornerRadius="10"
+                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                    Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}">
+
+                                <StackPanel Spacing="10">
+                                    <!-- File + Status -->
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding InputFile}"
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"/>
+
+                                            <TextBlock Text="{Binding OutputFile}"
+                                                       FontSize="12"
+                                                       Opacity="0.6"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                        <Border Grid.Column="1"
+                                                Padding="10,4"
+                                                CornerRadius="20"
+                                                VerticalAlignment="Top"
+                                                Background="{Binding Status,
+                                                Converter={StaticResource StatusToBrushConverter}}">
+                                            
+                                            <TextBlock Text="{Binding Status}"
+                                                       Foreground="White"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="12"/>
+                                        </Border>
+                                    </Grid>
+                                    <!-- Progress -->
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <ProgressBar Value="{Binding Progress}"
+                                                     Maximum="100"
+                                                     Height="8"/>
+
+                                        <TextBlock Grid.Column="1"
+                                                   Margin="10,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding Progress,
+                                                                  StringFormat={}{0:F0}%}"
+                                                   FontSize="12"/>
+                                    </Grid>
+                                    <!-- Error -->
+                                    <Expander Header="Error details"
+                                              IsVisible="{Binding ErrorMessage,
+                                                          Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+
+                                        <Border Margin="0,8,0,0"
+                                                Padding="8"
+                                                CornerRadius="6"
+                                                Background="#22FF0000">
+
+                                            <TextBlock Text="{Binding ErrorMessage}"
+                                                       FontFamily="Consolas"
+                                                       FontSize="12"
+                                                       TextWrapping="Wrap"/>
+                                        </Border>
+                                    </Expander>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="3"
+              Margin="0,16,0,0"
+              ColumnDefinitions="*,Auto">
+            <!-- Left actions -->
+            <Border Padding="12"
+                    CornerRadius="10"
+                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                <StackPanel Orientation="Horizontal"
+                            Spacing="10">
+
+                    <Button Content="＋  Add File"
+                            Command="{Binding AddFileCommand}" />
+
+                    <Button Content="−  Remove Selected"
+                            Command="{Binding RemoveJobCommand}" />
+
+                    <Button Content="Clear Queue"
+                            Command="{Binding ClearQueueCommand}" />
+                </StackPanel>
+            </Border>
+            <!-- Right actions -->
+            <Border Grid.Column="1"
+                    Padding="12"
+                    CornerRadius="10"
+                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                <StackPanel Orientation="Horizontal"
+                            Spacing="10">
+                    <Button Content="▶  Start"
+                            Classes="accent"
+                            Command="{Binding StartConversionCommand}"
+                            IsEnabled="{Binding !StartConversionCommand.IsRunning}" />
+                    <Button Content="■  Cancel"
+                            Command="{Binding StartConversionCommand.Cancel}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+
+</Window>
