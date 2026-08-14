@@ -125,7 +125,7 @@ public class FFmpegService : IFFmpegService
         }
 
         File.AppendAllText(Path.Combine(Path.GetTempPath(), "ffgui_probe.log"),
-            $"[{DateTime.UtcNow:HH:mm:ss}] {tool} --version => exit={exit} stderr={err.Length}B :: {(string.IsNullOrEmpty(err) ? "(none)" : err.Substring(0, Math.Min(160, err.Length)))}\n");
+            $"[{DateTime.UtcNow:HH:mm:ss}] {tool} -version => exit={exit} stderr={err.Length}B :: {(string.IsNullOrEmpty(err) ? "(none)" : err.Substring(0, Math.Min(160, err.Length)))}\n");
 
         return exit == 0;
     }
