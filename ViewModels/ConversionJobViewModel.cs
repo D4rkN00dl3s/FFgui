@@ -18,8 +18,7 @@ public partial class ConversionJobViewModel : ObservableObject
     
     [ObservableProperty] private ConversionStatus status = ConversionStatus.Waiting;
     
-    [ObservableProperty]
-    public partial string? ErrorMessage { get; set; }
+    [ObservableProperty] private string? errorMessage;
     
     public ConversionJobViewModel(ConversionJob job)
     {

@@ -77,12 +77,12 @@ FFgui is a working but spare .NET 10/Avalonia frontend for FFmpeg. Near-term foc
   - Dependencies: none
   - Success criteria: builds on Windows; unchanged behavior on Linux/Mac (manifest inert).
 
-- [ ] Normalize `ConversionJobViewModel.ErrorMessage` `[ObservableProperty] public partial` placement
+- [x] Normalize `ConversionJobViewModel.ErrorMessage` `[ObservableProperty] public partial` placement
   - Area: ViewModels/ConversionJobViewModel
   - Type: refactor (style)
   - Rationale: inconsistent with the other `[ObservableProperty]` private fields; cosmetic only.
   - Dependencies: none
-  - Success criteria: builds; property generation unchanged. `needs clarification` — worth the churn?
+  - Success criteria: builds (0 warnings/0 errors); generated public `string? ErrorMessage` property and INPC behavior unchanged; all 16 tests still pass. Converted `[ObservableProperty] public partial string? ErrorMessage { get; set; }` → `[ObservableProperty] private string? errorMessage;` (callers unaffected — they bind/use the generated `ErrorMessage` property).
 
 - [ ] Replace manual `SelectedJobs` ObservableCollection + `OnPropertyChanged(HasNoJobs)` with reactive bindings
   - Area: ViewModels/MainViewModel
