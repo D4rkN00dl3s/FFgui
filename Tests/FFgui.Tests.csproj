@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FFgui.csproj" />
+    <ProjectReference Include="../FFgui.csproj" />
   </ItemGroup>
 
 </Project>

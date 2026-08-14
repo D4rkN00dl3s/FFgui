@@ -25,6 +25,13 @@ FFgui is a working but spare .NET 10/Avalonia frontend for FFmpeg. Near-term foc
   - Dependencies: ffmpeg/ffprobe on PATH (available on this machine)
   - Success criteria: `ffmpeg -version`/`ffprobe -version` exit 0; regression tests assert `IsToolAvailable` returns `true` for the real tools (skipped when absent) and `false` for a bogus name; `dotnet build`/`dotnet test` clean. Changed probe flag from `--version` to `-version`.
 
+- [x] Harden cross-platform build (Windows + Linux)
+  - Area: FFgui.csproj, Tests/FFgui.Tests.csproj, FFgui.sln, .github/workflows/ci.yml
+  - Type: refactor/infra
+  - Rationale: MSBuild path separators in item specs were backslash (`Assets\**`, `Tests\**\*.cs`, `..\FFgui.csproj`, `.sln` project path), the cross-platform-unsafe form; normalized to forward slashes (MSBuild accepts both on Windows, forward-slash everywhere is the documented safe form). CI extended to a `windows-latest` × `ubuntu-latest` matrix so the build+tests run on both.
+  - Dependencies: none
+  - Success criteria: `dotnet build`/`dotnet test` green on both runners; ubuntu-latest has ffmpeg preinstalled so the positive `IsToolAvailable` regression tests execute there (Windows skips them gracefully when ffmpeg is absent). No local Linux host was available in this environment (no WSL/Docker), so Linux is validated via CI only.
+
 - [x] Verify error-surfacing path end-to-end with a corrupt/non-video input
   - Area: Views/MainWindow + ViewModels/MainViewModel (UI)
   - Type: bugfix/verify
@@ -62,12 +69,13 @@ FFgui is a working but spare .NET 10/Avalonia frontend for FFmpeg. Near-term foc
   - Dependencies: none
   - Success criteria: banner names the missing tool(s) at startup; dismissible without re-probe; no banner when both tools present. Implemented as a non-blocking startup banner per the accepted design decision.
 
-- [ ] Decide on Windows-only `app.manifest`
+- [x] Decide on Windows-only `app.manifest`
   - Area: app.manifest / FFgui.csproj
   - Type: refactor/infra
   - Rationale: `app.manifest` is Windows-only (ignored on Linux/Mac) and `OutputType=WinExe` is Windows-centric; Avalonia notes it may matter for transparency/embedded controls.
+  - Decision: KEEP. The manifest only declares Windows-10 `<supportedOS>` + the standard DPI/embedded-controls advisory comment; no `trustInfo`/`requestedExecutionLevel` (no `requireAdministrator`) or other unusual settings, so it cannot change Linux/macOS behavior. Dropping it risks Windows DPI regressions for zero offsetting benefit.
   - Dependencies: none
-  - Success criteria: builds on Windows; unchanced on Linux/Mac. `needs clarification` — keep (template) or drop?
+  - Success criteria: builds on Windows; unchanged behavior on Linux/Mac (manifest inert).
 
 - [ ] Normalize `ConversionJobViewModel.ErrorMessage` `[ObservableProperty] public partial` placement
   - Area: ViewModels/ConversionJobViewModel

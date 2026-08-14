@@ -47,7 +47,7 @@ FFgui is a C#/.NET 10 desktop GUI frontend for FFmpeg. Users add video files to 
 - `ConversionJobViewModel.ErrorMessage` is declared with `[ObservableProperty] public partial string? ErrorMessage` (unusual `public` partial placement); the property is generated correctly but the style is inconsistent with the other `[ObservableProperty]` fields (which are private).
 - `StartConversion` runs jobs sequentially; a single `CancellationToken` cancels the whole queue (the Cancel button binds `StartConversionCommand.Cancel`).
 - `MainWindow.axaml.cs` references `QueueDropZone` (set via `x:Name`) — keep this name if restructuring the drop zone.
-- `app.manifest` is Windows-only (WinExe + Windows compatibility block); app is built for desktop (`UsePlatformDetect`) — cross-platform (Linux/Mac) build will work but `app.manifest` is ignored outside Windows.
+- `app.manifest` is Windows-only (Windows-10 `<supportedOS>` + DPI/embedded-controls advisory; no UAC/requireAdministrator); kept (inert on Linux/Mac, dropping risks Windows DPI regression). App is desktop (`UsePlatformDetect`); cross-platform build is now validated by a Windows × Ubuntu CI matrix and MSBuild path separators in `.csproj`/`.sln` are forward-slash (the cross-platform-safe form).
 - `.gitignore` ignores `bin/`, `obj/`, and `.idea/`. Repo is git-tracked on `origin → https://github.com/D4rkN00dl3s/FFgui.git`; local commits exist that are not pushed — pushing is the human's responsibility (see Git workflow section below).
 
 ## Git workflow

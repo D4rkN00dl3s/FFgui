@@ -7,12 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <AvaloniaResource Include="Assets\**"/>
+        <AvaloniaResource Include="Assets/**"/>
     </ItemGroup>
 
     <ItemGroup>
         <!-- Exclude test sources from the WinExe glob so they compile only in FFgui.Tests -->
-        <Compile Remove="Tests\**\*.cs" />
+        <Compile Remove="Tests/**/*.cs" />
     </ItemGroup>
 
     <ItemGroup>
